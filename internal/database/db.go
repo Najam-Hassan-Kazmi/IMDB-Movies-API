@@ -3,45 +3,65 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func New(dbPath string) (*sql.DB, error) {
+// Run goose migration from root folder
 
-	connectionString := dbPath + "?_foreign_keys=on"
+// goose -dir migrations sqlite3 ./internal/database/movies.db up
 
-	db, err := sql.Open("sqlite3", connectionString)
+func New() (*sql.DB, error) {
+	// make data filder for database
+
+	db, err := sql.Open("sqlite3", "./internal/database/movies.db?_foreign_keys=on")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
-	fmt.Println(">> Connection to Database ...")
+	fmt.Println(">> Connection to Database...")
 	err = db.Ping()
 	if err != nil {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
-
 	fmt.Println(">> PING: Successful!")
 	fmt.Println(">> Connection to SQLite Established!")
 	return db, nil
 }
 
-func RunMigration(db *sql.DB, migrationFilePath string) error {
+// func New(dbPath string) (*sql.DB, error) {
 
-	fmt.Println(">> Checking Database Schema ...")
+// 	connectionString := dbPath + "?_foreign_keys=on"
 
-	sqlBytes, err := os.ReadFile(migrationFilePath)
-	if err != nil {
-		return fmt.Errorf("failed to read migration file: %w", err)
-	}
+// 	db, err := sql.Open("sqlite3", connectionString)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to open database: %w", err)
+// 	}
+// 	fmt.Println(">> Connection to Database ...")
+// 	err = db.Ping()
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to ping database: %w", err)
+// 	}
 
-	_, err = db.Exec(string(sqlBytes))
-	if err != nil {
-		return fmt.Errorf("failed to execute migration: %w", err)
-	}
+// 	fmt.Println(">> PING: Successful!")
+// 	fmt.Println(">> Connection to SQLite Established!")
+// 	return db, nil
+// }
 
-	fmt.Println(">> Database Schema Check Complete!")
+// func RunMigration(db *sql.DB, migrationFilePath string) error {
 
-	return nil
-}
+// 	fmt.Println(">> Checking Database Schema ...")
+
+// 	sqlBytes, err := os.ReadFile(migrationFilePath)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to read migration file: %w", err)
+// 	}
+
+// 	_, err = db.Exec(string(sqlBytes))
+// 	if err != nil {
+// 		return fmt.Errorf("failed to execute migration: %w", err)
+// 	}
+
+// 	fmt.Println(">> Database Schema Check Complete!")
+
+// 	return nil
+// }
