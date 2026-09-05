@@ -37,12 +37,22 @@ func (s *GenreService) GetAll() ([]models.Genre, error) {
 	return s.repo.GetAll()
 }
 
+
 func (s *GenreService) GetByID(id int64) (*models.Genre, error) {
 	if id <= 0 {
 		return nil, errors.New("invalid ID provided")
 	}
 	return s.repo.GetByID(id)
 }
+
+
+func (s *GenreService) GetByName(name string) ([]models.Genre, error) {
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.New("search name cannot be empty")
+	}
+	return s.repo.GetByName(name)
+}
+
 
 func (s *GenreService) Update(genre *models.Genre) error {
 	
@@ -66,7 +76,7 @@ func (s *GenreService) Delete(id int64, force bool) error {
 	}
 
 	if force == true {
-		fmt.Println("Force delete requested!")
+		return s.repo.ForceDelete(id)
 	}
 
 	return s.repo.Delete(id)

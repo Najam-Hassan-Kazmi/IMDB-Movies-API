@@ -35,9 +35,32 @@ func (h *ActorHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ActorHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	actors, err := h.service.GetAll()
+	
+	
+	name := r.URL.Query().Get("name")
+	
+	var actors []models.Actor
+	var err error
+	
+	// actors, err := h.service.GetAll()
+	// if err != nil {
+	// 	http.Error(w, "Failed to fetch actors", http.StatusInternalServerError)
+	// 	return
+	// }
+
+
+	if name != "" {
+
+		actors, err = h.service.GetByName(name)
+	
+	} else {
+		
+		actors, err = h.service.GetAll()
+	
+	}
+
 	if err != nil {
-		http.Error(w, "Failed to fetch actors", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch actors", http.StatusInternalServerError )
 		return
 	}
 
@@ -82,8 +105,17 @@ func (h *ActorHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	updatedActor, err := h.service.GetByID(id)
+	if err != nil {
+		http.Error(w, "Failed to fetch updated actor", http.StatusInternalServerError )
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Actor updated successfully"))
+	w.Write([]byte("Actor updated successfully\n"))
+	json.NewEncoder(w).Encode(updatedActor)
+
 }
 
 func (h *ActorHandler) Delete(w http.ResponseWriter, r *http.Request) {
