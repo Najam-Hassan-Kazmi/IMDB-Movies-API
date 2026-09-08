@@ -21,20 +21,23 @@ func NewGenreHandler(service *service.GenreService) *GenreHandler {
 
 func (h *GenreHandler) Create(w http.ResponseWriter, r *http.Request) {
 
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+
 	var genre models.Genre
 
-	err := json.NewDecoder(r.Body).Decode(&genre)
+	err := decoder.Decode(&genre)
 	if err != nil {
 		// http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		fmt.Println("Invalid JSON payload")
-		HandleError(w, err)
+		HandleError(w, "Invalid JSON payload", err)
 		return
 	}
 
 	err = h.service.Create(&genre)
 	if err != nil {
 		// http.Error(w, err.Error(), http.StatusBadRequest)
-		HandleError(w, err)
+		HandleError(w, "", err)
 		return
 	}
 
@@ -45,7 +48,7 @@ func (h *GenreHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		fmt.Println("Failed to encode response")
-		HandleError(w, err)
+		HandleError(w, "Failed to encode response", err)
 		return
 	}
 }
@@ -76,7 +79,7 @@ func (h *GenreHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Failed to fetch genres", http.StatusInternalServerError )
 		fmt.Println("Failed to fetch genres")
-		HandleError(w, err)
+		HandleError(w, "Failed to fetch genres", err)
 		return
 	}
 
@@ -89,7 +92,7 @@ func (h *GenreHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		fmt.Println("Failed to encode response")
-		HandleError(w, err)
+		HandleError(w, "Failed to encode response", err)
 		return
 	}
 }
@@ -102,14 +105,14 @@ func (h *GenreHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		fmt.Println("Invalid ID format")
-		HandleError(w, err)
+		HandleError(w, "Invalid ID format", err)
 		return
 	}
 
 	genre, err := h.service.GetByID(id)
 	if err != nil {
 		// http.Error(w, err.Error(), http.StatusNotFound) // 404 Not Found
-		HandleError(w, err)
+		HandleError(w, "", err)
 		return
 	}
 
@@ -120,7 +123,7 @@ func (h *GenreHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		fmt.Println("Failed to encode response")
-		HandleError(w, err)
+		HandleError(w, "Failed to encode response", err)
 		return
 	}
 }
@@ -132,7 +135,7 @@ func (h *GenreHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		fmt.Println("Invalid ID format")
-		HandleError(w, err)
+		HandleError(w, "Invalid ID format", err)
 		return
 	}
 
@@ -141,7 +144,7 @@ func (h *GenreHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		fmt.Println("Invalid JSON payload")
-		HandleError(w, err)
+		HandleError(w, "Invalid JSON payload", err)
 		return
 	}
 
@@ -149,7 +152,7 @@ func (h *GenreHandler) Update(w http.ResponseWriter, r *http.Request) {
 	err = h.service.Update(&genre)
 	if err != nil {
 		// http.Error(w, err.Error(), http.StatusBadRequest)
-		HandleError(w, err)
+		HandleError(w, "", err)
 		return
 	}
 
@@ -157,7 +160,7 @@ func (h *GenreHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Failed to fetch updated genre", http.StatusInternalServerError )
 		fmt.Println("Failed to fetch updated genre")
-		HandleError(w, err)
+		HandleError(w, "Failed to fetch updated genre", err)
 		return
 	}
 
@@ -175,7 +178,7 @@ func (h *GenreHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// http.Error(w, "Invalid ID format", http.StatusBadRequest)
 		fmt.Println("Invalid ID format")
-		HandleError(w, err)
+		HandleError(w, "Invalid ID format", err)
 		return
 	}
 
@@ -188,7 +191,7 @@ func (h *GenreHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	err = h.service.Delete(id, force)
 	if err != nil {
 		// http.Error(w, err.Error(), http.StatusBadRequest)
-		HandleError(w, err)
+		HandleError(w, "", err)
 		return
 	}
 

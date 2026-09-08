@@ -12,22 +12,23 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-func HandleError(w http.ResponseWriter, err error) {
+func HandleError(w http.ResponseWriter, message string, err error) {
+
 	var statusCode int
-	var message string
+
+	if message == "" && err != nil {
+		message = err.Error()
+	} else if message == "" {
+		message = "Server Error"
+	}
 
 	switch {
-
 	case errors.Is(err, models.ErrNotFound):
 		statusCode = http.StatusNotFound
-		message = err.Error()
 	case errors.Is(err, models.ErrInvalidInput):
 		statusCode = http.StatusBadRequest
-		message = err.Error()
 	case errors.Is(err, models.ErrConflict):
 		statusCode = http.StatusConflict // 409 Conflict
-		message = err.Error()
-
 	// For any other error (like database connection issues), return a 500
 	default:
 
