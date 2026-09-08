@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"movies-api/internal/models"
 	"movies-api/internal/service"
 	"net/http"
@@ -24,13 +25,16 @@ func (h *GenreHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&genre)
 	if err != nil {
-		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		// http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		fmt.Println("Invalid JSON payload")
+		HandleError(w, err)
 		return
 	}
 
 	err = h.service.Create(&genre)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		// http.Error(w, err.Error(), http.StatusBadRequest)
+		HandleError(w, err)
 		return
 	}
 
@@ -39,7 +43,9 @@ func (h *GenreHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewEncoder(w).Encode(genre)
 	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		// http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		fmt.Println("Failed to encode response")
+		HandleError(w, err)
 		return
 	}
 }
@@ -47,7 +53,7 @@ func (h *GenreHandler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *GenreHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	name := r.URL.Query().Get("name")
-	
+
 	var genres []models.Genre
 	var err error
 
@@ -57,19 +63,20 @@ func (h *GenreHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-
 	if name != "" {
 
 		genres, err = h.service.GetByName(name)
-	
+
 	} else {
-		
+
 		genres, err = h.service.GetAll()
-	
+
 	}
 
 	if err != nil {
-		http.Error(w, "Failed to fetch genres", http.StatusInternalServerError )
+		// http.Error(w, "Failed to fetch genres", http.StatusInternalServerError )
+		fmt.Println("Failed to fetch genres")
+		HandleError(w, err)
 		return
 	}
 
@@ -80,7 +87,9 @@ func (h *GenreHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(genres)
 
 	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		// http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		fmt.Println("Failed to encode response")
+		HandleError(w, err)
 		return
 	}
 }
@@ -91,13 +100,16 @@ func (h *GenreHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		// http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		fmt.Println("Invalid ID format")
+		HandleError(w, err)
 		return
 	}
 
 	genre, err := h.service.GetByID(id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound) // 404 Not Found
+		// http.Error(w, err.Error(), http.StatusNotFound) // 404 Not Found
+		HandleError(w, err)
 		return
 	}
 
@@ -106,7 +118,9 @@ func (h *GenreHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewEncoder(w).Encode(genre)
 	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		// http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		fmt.Println("Failed to encode response")
+		HandleError(w, err)
 		return
 	}
 }
@@ -116,30 +130,37 @@ func (h *GenreHandler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		// http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		fmt.Println("Invalid ID format")
+		HandleError(w, err)
 		return
 	}
 
 	var genre models.Genre
 	err = json.NewDecoder(r.Body).Decode(&genre)
 	if err != nil {
-		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		// http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+		fmt.Println("Invalid JSON payload")
+		HandleError(w, err)
 		return
 	}
 
 	genre.ID = id
 	err = h.service.Update(&genre)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		// http.Error(w, err.Error(), http.StatusBadRequest)
+		HandleError(w, err)
 		return
 	}
 
 	updatedGenre, err := h.service.GetByID(id)
 	if err != nil {
-		http.Error(w, "Failed to fetch updated genre", http.StatusInternalServerError )
+		// http.Error(w, "Failed to fetch updated genre", http.StatusInternalServerError )
+		fmt.Println("Failed to fetch updated genre")
+		HandleError(w, err)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(updatedGenre)
@@ -152,7 +173,9 @@ func (h *GenreHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		// http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		fmt.Println("Invalid ID format")
+		HandleError(w, err)
 		return
 	}
 
@@ -164,7 +187,8 @@ func (h *GenreHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err = h.service.Delete(id, force)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		// http.Error(w, err.Error(), http.StatusBadRequest)
+		HandleError(w, err)
 		return
 	}
 
